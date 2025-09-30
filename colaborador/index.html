@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Área do Colaborador | Binex Engenharia</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+  <script>
+    // Redireciona se o usuário não estiver logado
+    if (!sessionStorage.getItem('loggedInUser')) {
+      window.location.href = '../login.html';
+    }
+  </script>
+  <nav>
+    <div class="container">
+      <div class="logo">
+        <img src="../assets/images/logo.png" alt="Binex Engenharia logo">
+        <span>Binex Engenharia</span>
+      </div>
+      <button id="nav-toggle" aria-label="Abrir menu" style="background:none;border:none;color:var(--light-text);font-size:1.5rem;display:none;">☰</button>
+      <ul>
+        <li><a href="index.html" class="active">Início</a></li>
+        <li><a href="orcamento.html">Orçamento Simples</a></li>
+        <li><a href="orcamento_detalhado_novo.html">Orçamento Detalhado</a></li>
+        <li><a href="financeiro_novo.html">Financeiro</a></li>
+        <li><a href="checklists.html">Checklists</a></li>
+        <li><a href="javascript:void(0);" id="logoutLink">Sair</a></li>
+      </ul>
+    </div>
+  </nav>
+  <section class="section" style="min-height:60vh;">
+    <div class="container text-center">
+      <h2>Bem-vindo, <span id="userEmail"></span>!</h2>
+      <p class="mt-1">Esta é a área interna para colaboradores da Binex. Acesse as ferramentas abaixo para gerar orçamentos ou controlar finanças.</p>
+      <div class="services-grid mt-2">
+        <a href="orcamento.html">
+          <div class="service-card">
+            <h3>Orçamento Simples</h3>
+            <p>Faça estimativas rápidas de custos de obras com base em área, padrão de acabamento e quantidade de pavimentos.</p>
+          </div>
+        </a>
+        <a href="orcamento_detalhado_novo.html">
+          <div class="service-card">
+            <h3>Orçamento Detalhado</h3>
+            <p>Sistema completo de orçamentação por setores com controle de materiais, mão de obra e exportação em PDF.</p>
+          </div>
+        </a>
+        <a href="financeiro_novo.html">
+          <div class="service-card">
+            <h3>Módulo Financeiro</h3>
+            <p>Dashboard completo com gráficos, controle de entradas e saídas, gastos fixos e projeções financeiras.</p>
+          </div>
+        </a>
+        <a href="checklists.html">
+          <div class="service-card">
+            <h3>Módulo de Checklists</h3>
+            <p>Organize tarefas diárias, semanais e mensais por colaborador com relatórios de produtividade e exportação.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="container grid">
+      <div>
+        <h4>Sobre a Binex</h4>
+        <p>A Binex Engenharia oferece soluções completas em engenharia civil e arquitetura. Esta área é destinada a colaboradores.</p>
+      </div>
+      <div>
+        <h4>Links rápidos</h4>
+        <p><a href="index.html">Página inicial</a></p>
+        <p><a href="orcamento.html">Orçamento Simples</a></p>
+        <p><a href="orcamento_detalhado_novo.html">Orçamento Detalhado</a></p>
+        <p><a href="financeiro_novo.html">Módulo Financeiro</a></p>
+        <p><a href="checklists.html">Módulo de Checklists</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 Binex Engenharia. Todos os direitos reservados.</div>
+  </footer>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    // Exibir email do usuário logado
+    const email = sessionStorage.getItem('loggedInUser');
+    document.getElementById('userEmail').textContent = email;
+    // Logout
+    document.getElementById('logoutLink').addEventListener('click', function() {
+      sessionStorage.removeItem('loggedInUser');
+      window.location.href = '../index.html';
+    });
+  </script>
+</body>
+</html>

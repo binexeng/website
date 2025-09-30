@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contato | Binex Engenharia</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <div class="logo">
+        <img src="assets/images/logo.png" alt="Binex Engenharia logo">
+        <span>Binex Engenharia</span>
+      </div>
+      <button id="nav-toggle" aria-label="Abrir menu" style="background:none;border:none;color:var(--light-text);font-size:1.5rem;display:none;">☰</button>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="about.html">Sobre</a></li>
+        <li><a href="services.html">Serviços</a></li>
+        <li><a href="projects.html">Projetos</a></li>
+        <li><a href="valores.html">Valores</a></li>
+        <li><a href="blog.html">Conteúdo</a></li>
+        <li><a href="contact.html" class="active">Contato</a></li>
+        <li><a href="login.html">Colaborador</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero" style="height:40vh;">
+    <div class="hero-content">
+      <h1>Contato</h1>
+      <p>Estamos prontos para ouvir você. Envie uma mensagem ou utilize nossos canais de atendimento.</p>
+    </div>
+  </header>
+
+  <!-- Contact Section -->
+  <section class="section">
+    <div class="container two-column" style="align-items:flex-start;">
+      <div>
+        <h2>Fale conosco</h2>
+        <p class="mt-1">Preencha o formulário e nossa equipe retornará o contato o mais breve possível. Se preferir, utilize as informações de contato ao lado.</p>
+        <form class="contact-form" onsubmit="event.preventDefault(); alert('Mensagem enviada!');">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="Seu email" required>
+          <label for="telefone">Telefone</label>
+          <input type="tel" id="telefone" name="telefone" placeholder="(DDD) 99999-9999" required>
+          <label for="mensagem">Mensagem</label>
+          <textarea id="mensagem" name="mensagem" placeholder="Como podemos ajudar?" required></textarea>
+          <button type="submit">Enviar Mensagem</button>
+        </form>
+      </div>
+      <div>
+        <h2>Informações de contato</h2>
+        <p class="mt-1"><strong>Email:</strong> <a href="mailto:binexengenharia@gmail.com">binexengenharia@gmail.com</a></p>
+        <p><strong>Telefone:</strong> +55 45 9933-8454</p>
+        <p><strong>Endereço:</strong> Foz do Iguaçu, Paraná - Brasil</p>
+        <p><strong>Horário de atendimento:</strong> Segunda a sexta, das 8h às 18h</p>
+      </div>
+    </div>
+  </section>
+
+   <!-- Footer -->
+  <footer class="footer">
+    <div class="container grid">
+      <div>
+        <h4>Sobre nós</h4>
+        <p>A Binex Engenharia está sempre aberta ao diálogo. Entre em contato para discutir seu projeto ou esclarecer dúvidas sobre nossos serviços.</p>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <p>Email: <a href="mailto:binexengenharia@gmail.com">binexengenharia@gmail.com</a></p>
+        <p>Telefone: +55 45 9933-8454</p>
+        <p>Endereço: Foz do Iguaçu, Paraná - Brasil</p>
+      </div>
+      <div>
+        <h4>Navegação</h4>
+        <p><a href="index.html">Início</a></p>
+        <p><a href="about.html">Sobre</a></p>
+        <p><a href="services.html">Serviços</a></p>
+        <p><a href="projects.html">Projetos</a></p>
+        <p><a href="valores.html">Valores</a></p>
+        <p><a href="blog.html">Conteúdo</a></p>
+        <p><a href="contact.html">Contato</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 Binex Engenharia. Todos os direitos reservados.</div>
+  </footer>
+  <script src="assets/js/script.js"></script>
+</body>
+</html>

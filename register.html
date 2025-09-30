@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binex Engenharia | Cadastro</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <div class="logo">
+        <img src="assets/images/logo.png" alt="Binex Engenharia logo">
+        <span>Binex Engenharia</span>
+      </div>
+      <button id="nav-toggle" aria-label="Abrir menu" style="background:none;border:none;color:var(--light-text);font-size:1.5rem;display:none;">☰</button>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="about.html">Sobre</a></li>
+        <li><a href="services.html">Serviços</a></li>
+        <li><a href="projects.html">Projetos</a></li>
+        <li><a href="valores.html">Valores</a></li>
+        <li><a href="blog.html">Conteúdo</a></li>
+        <li><a href="contact.html">Contato</a></li>
+        <li><a href="login.html" class="active">Colaborador</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Register Form -->
+  <section class="section" style="min-height:60vh;display:flex;align-items:center;justify-content:center;">
+    <div class="container" style="max-width:500px;">
+      <h2 class="text-center">Criar Conta</h2>
+      <p class="text-center mt-1">Cadastre-se para acessar as ferramentas internas.</p>
+      <form id="registerForm" class="mt-2" style="background-color:#fff;padding:2rem;border-radius:var(--border-radius);box-shadow:0 4px 8px rgba(0,0,0,0.05);">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="registerEmail">Email</label>
+          <input type="email" id="registerEmail" name="email" required style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;">
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="registerPassword">Senha</label>
+          <input type="password" id="registerPassword" name="password" required style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;">
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="confirmPassword">Confirmar Senha</label>
+          <input type="password" id="confirmPassword" name="confirm" required style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;">
+        </div>
+        <button type="submit" class="btn" style="width:100%;">Cadastrar</button>
+      </form>
+      <p class="text-center mt-1">Já possui conta? <a href="login.html">Entrar</a></p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container grid">
+      <div>
+        <h4>Sobre nós</h4>
+        <p>A Binex Engenharia trabalha com soluções completas em engenharia civil e arquitetura. Nossa missão é projetar e construir espaços duráveis, eficientes e sustentáveis.</p>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <p>Email: <a href="mailto:binexengenharia@gmail.com">binexengenharia@gmail.com</a></p>
+        <p>Telefone: (45) 9&nbsp;9999-9999</p>
+        <p>Endereço: Foz do Iguaçu, Paraná - Brasil</p>
+      </div>
+      <div>
+        <h4>Navegação</h4>
+        <p><a href="index.html">Início</a></p>
+        <p><a href="about.html">Sobre</a></p>
+        <p><a href="services.html">Serviços</a></p>
+        <p><a href="projects.html">Projetos</a></p>
+        <p><a href="valores.html">Valores</a></p>
+        <p><a href="blog.html">Conteúdo</a></p>
+        <p><a href="contact.html">Contato</a></p>
+        <p><a href="login.html">Colaborador</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 Binex Engenharia. Todos os direitos reservados.</div>
+  </footer>
+  <script src="assets/js/script.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const email = document.getElementById('registerEmail').value.trim();
+      const password = document.getElementById('registerPassword').value;
+      const confirm = document.getElementById('confirmPassword').value;
+      if (password !== confirm) {
+        alert('As senhas não coincidem.');
+        return;
+      }
+      let users = JSON.parse(localStorage.getItem('users') || '{}');
+      if (users[email]) {
+        alert('Este email já está cadastrado.');
+        return;
+      }
+      users[email] = { password };
+      localStorage.setItem('users', JSON.stringify(users));
+      sessionStorage.setItem('loggedInUser', email);
+      window.location.href = 'colaborador/index.html';
+    });
+  </script>
+</body>
+</html>

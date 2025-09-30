@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerar Orçamento | Binex Engenharia</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+  <script>
+    // Proteger página
+    if (!sessionStorage.getItem('loggedInUser')) {
+      window.location.href = '../login.html';
+    }
+  </script>
+  <nav>
+    <div class="container">
+      <div class="logo">
+        <img src="../assets/images/logo.png" alt="Binex Engenharia logo">
+        <span>Binex Engenharia</span>
+      </div>
+      <button id="nav-toggle" aria-label="Abrir menu" style="background:none;border:none;color:var(--light-text);font-size:1.5rem;display:none;">☰</button>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="orcamento.html" class="active">Orçamento Simples</a></li>
+        <li><a href="orcamento_detalhado_novo.html">Orçamento Detalhado</a></li>
+        <li><a href="financeiro_novo.html">Financeiro</a></li>
+        <li><a href="checklists.html">Checklists</a></li>
+        <li><a href="javascript:void(0);" id="logoutLink">Sair</a></li>
+      </ul>
+    </div>
+  </nav>
+  <section class="section" style="min-height:60vh;">
+    <div class="container" style="max-width:600px;">
+      <h2 class="text-center">Geração de Orçamento</h2>
+      <p class="mt-1 text-center">Preencha os dados abaixo para calcular o custo estimado da obra. Os valores de referência são meramente ilustrativos.</p>
+      <form id="budgetForm" class="mt-2" style="background-color:#fff;padding:2rem;border-radius:var(--border-radius);box-shadow:0 4px 8px rgba(0,0,0,0.05);">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="area">Área construída (m²)</label>
+          <input type="number" id="area" name="area" min="1" required style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;">
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="floors">Número de pavimentos</label>
+          <input type="number" id="floors" name="floors" min="1" value="1" required style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;">
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="quality">Padrão de acabamento</label>
+          <select id="quality" name="quality" style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;">
+            <option value="economico">Econômico</option>
+            <option value="standard">Standard</option>
+            <option value="alto">Alto padrão</option>
+          </select>
+        </div>
+        <button type="submit" class="btn" style="width:100%;">Calcular</button>
+      </form>
+      <div id="result" class="mt-2" style="display:none;background-color:#e3f2fd;padding:1.5rem;border-radius:var(--border-radius);box-shadow:0 4px 8px rgba(0,0,0,0.05);">
+        <h3>Resultado</h3>
+        <p id="resultText"></p>
+      </div>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="container grid">
+      <div>
+        <h4>Sobre a Binex</h4>
+        <p>A Binex Engenharia oferece soluções completas em engenharia civil e arquitetura. Esta área é destinada a colaboradores.</p>
+      </div>
+      <div>
+        <h4>Links rápidos</h4>
+        <p><a href="index.html">Painel</a></p>
+        <p><a href="orcamento.html">Gerar orçamento</a></p>
+        <p><a href="financeiro.html">Controle financeiro</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 Binex Engenharia. Todos os direitos reservados.</div>
+  </footer>
+  <script>
+    // logout
+    document.getElementById('logoutLink').addEventListener('click', () => {
+      sessionStorage.removeItem('loggedInUser');
+      window.location.href = '../index.html';
+    });
+    // cálculo
+    document.getElementById('budgetForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const area = parseFloat(document.getElementById('area').value);
+      const floors = parseInt(document.getElementById('floors').value);
+      const quality = document.getElementById('quality').value;
+      let costPerM2;
+      switch (quality) {
+        case 'economico': costPerM2 = 1500; break;
+        case 'standard': costPerM2 = 2000; break;
+        case 'alto': costPerM2 = 3000; break;
+        default: costPerM2 = 2000;
+      }
+      const total = area * floors * costPerM2;
+      document.getElementById('resultText').innerHTML = `Área: <strong>${area} m²</strong><br>Nº de pavimentos: <strong>${floors}</strong><br>Padrão: <strong>${quality.charAt(0).toUpperCase() + quality.slice(1)}</strong><br>Custo estimado: <strong>R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>`;
+      document.getElementById('result').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
