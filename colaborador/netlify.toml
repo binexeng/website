@@ -1,0 +1,5 @@
+[edge_functions]
+
+[[edge_functions]]
+  path = "/colaborador/financeiro*"
+  function = "protect-finance"
