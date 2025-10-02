@@ -7,12 +7,12 @@
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-  <script>
-    // Redireciona se o usuário não estiver logado
-    if (!sessionStorage.getItem('loggedInUser')) {
-      window.location.href = '../login.html';
-    }
-  </script>
+  
+ <script src="../assets/js/auth.js"></script>
+<script>
+  window.requireLogin('../login.html');
+</script>
+ 
   <nav>
     <div class="container">
       <div class="logo">
