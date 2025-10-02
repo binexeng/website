@@ -78,10 +78,9 @@
     <div class="footer-bottom">&copy; 2025 Binex Engenharia. Todos os direitos reservados.</div>
   </footer>
 
-  <!-- Seu JS comum do site (se existir) -->
   <script src="assets/js/script.js"></script>
 
-  <!-- LOGIN COM FIREBASE (inline, correto) -->
+  <!-- LOGIN COM FIREBASE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
@@ -91,7 +90,7 @@
       apiKey: "AIzaSyB5u6geOrhconAtJ9xytORrW_M4No30YRs",
       authDomain: "binex-db107.firebaseapp.com",
       projectId: "binex-db107",
-      storageBucket: "binex-db107.firebasestorage.app",
+      storageBucket: "binex-db107.appspot.com",
       messagingSenderId: "1009582511057",
       appId: "1:1009582511057:web:3d54d598b92000537646f0",
       measurementId: "G-RN2XR474D2"
@@ -101,11 +100,12 @@
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // (opcional) grava cookie com o token — útil para travar /finance/ depois
+    // Grava cookie com o token E com o e-mail do usuário!
     async function setAuthCookie(user) {
       if (!user) return;
       const token = await user.getIdToken(true);
       document.cookie = `fb=${token}; Max-Age=${30*60}; Path=/; Secure; SameSite=Lax`;
+      document.cookie = `fb_email=${user.email}; Max-Age=${30*60}; Path=/; Secure; SameSite=Lax`;
     }
 
     // Handler do formulário (usa seu formulário atual)
@@ -118,10 +118,9 @@
       try {
         const cred = await signInWithEmailAndPassword(auth, email, pass);
         await setAuthCookie(cred.user);
-        window.location.href = "/colaborador/index.html";
+        window.location.href = "colaborador/index.html";
       } catch (err) {
         console.error(err);
-        // Mensagens mais amigáveis
         const code = err?.code || "";
         if (code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found") {
           alert("E-mail ou senha inválidos.");
