@@ -7,12 +7,12 @@
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
+  <!-- CORREÇÃO: Proteção via Firebase cookie -->
+  <script src="../assets/js/auth.js"></script>
   <script>
-    // Proteger página
-    if (!sessionStorage.getItem('loggedInUser')) {
-      window.location.href = '../login.html';
-    }
+    window.requireLogin('../login.html');
   </script>
+
   <nav>
     <div class="container">
       <div class="logo">
@@ -74,11 +74,10 @@
     </div>
     <div class="footer-bottom">&copy; 2025 Binex Engenharia. Todos os direitos reservados.</div>
   </footer>
+  <!-- CORREÇÃO: Logout via função do auth.js -->
   <script>
-    // logout
     document.getElementById('logoutLink').addEventListener('click', () => {
-      sessionStorage.removeItem('loggedInUser');
-      window.location.href = '../index.html';
+      window.logout('../index.html');
     });
     // cálculo
     document.getElementById('budgetForm').addEventListener('submit', function(event) {
