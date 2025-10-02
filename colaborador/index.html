@@ -8,10 +8,33 @@
 </head>
 <body>
   
- <script src="../assets/js/auth.js"></script>
-<script>
-  window.requireLogin('../login.html');
-</script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    window.requireLogin('../login.html');
+  </script>
+  <!-- MOSTRAR E-MAIL DO USUÁRIO LOGADO VIA FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyB5u6geOrhconAtJ9xytORrW_M4No30YRs",
+      authDomain: "binex-db107.firebaseapp.com",
+      projectId: "binex-db107",
+      storageBucket: "binex-db107.appspot.com",
+      messagingSenderId: "1009582511057",
+      appId: "1:1009582511057:web:3d54d598b92000537646f0",
+      measurementId: "G-RN2XR474D2"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.email) {
+        document.getElementById('userEmail').textContent = user.email;
+      } else {
+        document.getElementById('userEmail').textContent = 'Colaborador';
+      }
+    });
+  </script>
  
   <nav>
     <div class="container">
@@ -81,13 +104,9 @@
   </footer>
   <script src="../assets/js/auth.js"></script>
   <script>
-    // Exibir email do usuário logado
-    const email = sessionStorage.getItem('loggedInUser');
-    document.getElementById('userEmail').textContent = email;
-    // Logout
+    // Logout agora usa função do auth.js que apaga o cookie fb!
     document.getElementById('logoutLink').addEventListener('click', function() {
-      sessionStorage.removeItem('loggedInUser');
-      window.location.href = '../index.html';
+      window.logout('../index.html');
     });
   </script>
 </body>
