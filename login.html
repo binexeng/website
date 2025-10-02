@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Binex Engenharia | Login</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
   <!-- Navigation -->
   <nav>
     <div class="container">
       <div class="logo">
-        <img src="assets/images/logo.png" alt="Binex Engenharia logo">
+        <img src="assets/images/logo.png" alt="Binex Engenharia logo" />
         <span>Binex Engenharia</span>
       </div>
       <button id="nav-toggle" aria-label="Abrir menu" style="background:none;border:none;color:var(--light-text);font-size:1.5rem;display:none;">☰</button>
@@ -33,11 +33,107 @@
     <div class="container" style="max-width:500px;">
       <h2 class="text-center">Área do Colaborador</h2>
       <p class="text-center mt-1">Acesse sua conta para usar as ferramentas internas.</p>
+
       <form id="loginForm" class="mt-2" style="background-color:#fff;padding:2rem;border-radius:var(--border-radius);box-shadow:0 4px 8px rgba(0,0,0,0.05);">
         <div class="form-group" style="margin-bottom:1rem;">
           <label for="loginEmail">Email</label>
-          <input type="email" id="loginEmail" name="email" required style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;">
+          <input type="email" id="loginEmail" name="email" required style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;" autocomplete="username" />
         </div>
         <div class="form-group" style="margin-bottom:1rem;">
           <label for="loginPassword">Senha</label>
-          <input type="password"
+          <input type="password" id="loginPassword" name="password" required style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn" style="width:100%;">Entrar</button>
+      </form>
+
+      <p class="text-center mt-1">Não possui conta? <a href="register.html">Cadastre-se</a></p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container grid">
+      <div>
+        <h4>Sobre nós</h4>
+        <p>A Binex Engenharia trabalha com soluções completas em engenharia civil e arquitetura. Nossa missão é projetar e construir espaços duráveis, eficientes e sustentáveis.</p>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <p>Email: <a href="mailto:contato@binexengenharia.com">contato@binexengenharia.com</a></p>
+        <p>Telefone: (45) 9&nbsp;9333-8454</p>
+        <p>Endereço: Foz do Iguaçu, Paraná - Brasil</p>
+      </div>
+      <div>
+        <h4>Navegação</h4>
+        <p><a href="index.html">Início</a></p>
+        <p><a href="about.html">Sobre</a></p>
+        <p><a href="services.html">Serviços</a></p>
+        <p><a href="projects.html">Projetos</a></p>
+        <p><a href="valores.html">Valores</a></p>
+        <p><a href="blog.html">Conteúdo</a></p>
+        <p><a href="contact.html">Contato</a></p>
+        <p><a href="login.html">Colaborador</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 Binex Engenharia. Todos os direitos reservados.</div>
+  </footer>
+
+  <!-- Seu JS comum do site (se existir) -->
+  <script src="assets/js/script.js"></script>
+
+  <!-- LOGIN COM FIREBASE (inline, correto) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+    // Config do seu app Web no Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyB5u6geOrhconAtJ9xytORrW_M4No30YRs",
+      authDomain: "binex-db107.firebaseapp.com",
+      projectId: "binex-db107",
+      storageBucket: "binex-db107.firebasestorage.app",
+      messagingSenderId: "1009582511057",
+      appId: "1:1009582511057:web:3d54d598b92000537646f0",
+      measurementId: "G-RN2XR474D2"
+    };
+
+    // Inicializa Firebase/Auth
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // (opcional) grava cookie com o token — útil para travar /finance/ depois
+    async function setAuthCookie(user) {
+      if (!user) return;
+      const token = await user.getIdToken(true);
+      document.cookie = `fb=${token}; Max-Age=${30*60}; Path=/; Secure; SameSite=Lax`;
+    }
+
+    // Handler do formulário (usa seu formulário atual)
+    const form = document.querySelector('#loginForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.querySelector('#loginEmail').value.trim();
+      const pass  = document.querySelector('#loginPassword').value;
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        await setAuthCookie(cred.user);
+        window.location.href = "/colaborador/index.html";
+      } catch (err) {
+        console.error(err);
+        // Mensagens mais amigáveis
+        const code = err?.code || "";
+        if (code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found") {
+          alert("E-mail ou senha inválidos.");
+        } else if (code === "auth/unauthorized-domain") {
+          alert("Domínio não autorizado no Firebase. Adicione seu domínio do site em Authentication > Configurações > Domínios autorizados.");
+        } else {
+          alert("Falha no login. Tente novamente.");
+        }
+      }
+    });
+
+    console.log("Firebase OK — login habilitado");
+  </script>
+</body>
+</html>
