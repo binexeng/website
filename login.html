@@ -75,20 +75,19 @@
     </div>
     <div class="footer-bottom">&copy; 2025 Binex Engenharia. Todos os direitos reservados.</div>
   </footer>
+
+  <!-- Scripts -->
   <script src="assets/js/script.js"></script>
-  <script src="assets/js/auth.js"></script>
+
+  <!-- Firebase Auth (nosso arquivo) -->
+  <script type="module" src="assets/js/auth.js"></script>
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const users = JSON.parse(localStorage.getItem('users') || '{}');
-      if (users[email] && users[email].password === password) {
-        sessionStorage.setItem('loggedInUser', email);
-        window.location.href = 'colaborador/index.html';
-      } else {
-        alert('Credenciais incorretas.');
-      }
+    // Conecta este formulário ao Firebase
+    attachLogin({
+      form:    '#loginForm',
+      email:   '#loginEmail',
+      password:'#loginPassword',
+      onSuccessRedirect: '/colaborador/index.html'
     });
   </script>
 </body>
