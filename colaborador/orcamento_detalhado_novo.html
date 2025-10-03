@@ -1,43 +1,1017 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-   <meta charset="UTF-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orçamento Detalhado | Binex Engenharia</title>
   <link rel="stylesheet" href="../assets/css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    /* ... CSS mantido ... */
+    .budget-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .budget-header {
+      background: linear-gradient(135deg, var(--primary-color), #1976d2);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    .budget-header h2 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2rem;
+    }
+    
+    .budget-header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+    
+    .budget-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .summary-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .summary-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin: 0.5rem 0;
+    }
+    
+    .summary-label {
+      color: #666;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .sector-section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+    
+    .sector-header {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      padding: 1.5rem;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .sector-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #333;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .sector-icon {
+      font-size: 1.5rem;
+    }
+    
+    .sector-total {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    
+    .sector-content {
+      padding: 1.5rem;
+    }
+    
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    
+    .items-table th {
+      background: #f8f9fa;
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #dee2e6;
+      font-size: 0.9rem;
+    }
+    
+    .items-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #dee2e6;
+      vertical-align: middle;
+    }
+    
+    .items-table tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .item-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    
+    .item-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+    }
+    
+    .item-select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      background: white;
+    }
+    
+    .item-type {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    .type-material {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .type-labor {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+    
+    .type-both {
+      background: #e8f5e8;
+      color: #388e3c;
+    }
+    
+    .btn-remove {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.3s;
+    }
+    
+    .btn-remove:hover {
+      background: #d32f2f;
+    }
+    
+    .btn-add-item {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.3s;
+    }
+    
+    .btn-add-item:hover {
+      background: #1976d2;
+    }
+    
+    .export-section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .export-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    
+    .btn-export {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.3s;
+    }
+    
+    .btn-export:hover {
+      background: #388e3c;
+    }
+    
+    .btn-export.secondary {
+      background: #ff9800;
+    }
+    
+    .btn-export.secondary:hover {
+      background: #f57c00;
+    }
+    
+    .total-value {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    
+    @media (max-width: 768px) {
+      .budget-container {
+        padding: 1rem;
+      }
+      
+      .budget-summary {
+        grid-template-columns: 1fr;
+      }
+      
+      .sector-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .items-table {
+        font-size: 0.8rem;
+      }
+      
+      .items-table th,
+      .items-table td {
+        padding: 0.5rem;
+      }
+      
+      .export-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .items-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      
+      .items-table thead,
+      .items-table tbody,
+      .items-table th,
+      .items-table td,
+      .items-table tr {
+        display: block;
+      }
+      
+      .items-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+      
+      .items-table tr {
+        border: 1px solid #ccc;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+      }
+      
+      .items-table td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        white-space: normal;
+      }
+      
+      .items-table td:before {
+        content: attr(data-label) ": ";
+        position: absolute;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- CORREÇÃO: Proteção via Firebase cookie -->
+  <!-- Proteção via Firebase cookie -->
   <script src="../assets/js/auth.js"></script>
   <script>
     window.requireLogin('../login.html');
   </script>
-
+  
   <nav>
-    <!-- ... nav mantido ... -->
+    <div class="container">
+      <div class="logo">
+        <img src="../assets/images/logo.png" alt="Binex Engenharia logo">
+        <span>Binex Engenharia</span>
+      </div>
+      <button id="nav-toggle" aria-label="Abrir menu" style="background:none;border:none;color:var(--light-text);font-size:1.5rem;display:none;">☰</button>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="orcamento.html">Orçamento Simples</a></li>
+        <li><a href="orcamento_detalhado_novo.html" class="active">Orçamento Detalhado</a></li>
+        <li><a href="financeiro_novo.html">Financeiro</a></li>
+        <li><a href="checklists.html">Checklists</a></li>
+        <li><a href="javascript:void(0);" id="logoutLink">Sair</a></li>
+      </ul>
+    </div>
   </nav>
 
   <section class="section">
     <div class="budget-container">
-      <!-- ... conteúdo mantido ... -->
+      <!-- Header -->
+      <div class="budget-header">
+        <h2>Orçamento Detalhado</h2>
+        <p>Sistema completo de orçamentação por setores com controle de materiais e mão de obra</p>
+      </div>
+
+      <!-- Resumo -->
+      <div class="budget-summary">
+        <div class="summary-card">
+          <div class="summary-label">Total Geral</div>
+          <div class="summary-value" id="total-geral">R$ 0,00</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Total Materiais</div>
+          <div class="summary-value" id="total-materiais">R$ 0,00</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Total Mão de Obra</div>
+          <div class="summary-value" id="total-mao-obra">R$ 0,00</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Itens Cadastrados</div>
+          <div class="summary-value" id="total-itens">0</div>
+        </div>
+      </div>
+
+      <!-- Serviços Preliminares -->
+      <div class="sector-section" data-sector="preliminares">
+        <div class="sector-header">
+          <h3 class="sector-title">
+            <span class="sector-icon">🏗️</span>
+            Serviços Preliminares
+          </h3>
+          <div class="sector-total" id="total-preliminares">R$ 0,00</div>
+        </div>
+        <div class="sector-content">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Descrição</th>
+                <th style="width: 10%;">Qtd</th>
+                <th style="width: 10%;">Unidade</th>
+                <th style="width: 15%;">Valor Unit.</th>
+                <th style="width: 15%;">Tipo</th>
+                <th style="width: 15%;">Total</th>
+                <th style="width: 5%;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="items-preliminares">
+              <!-- Itens serão inseridos aqui -->
+            </tbody>
+          </table>
+          <button class="btn-add-item" onclick="addItem('preliminares')">
+            <span>+</span> Adicionar Item
+          </button>
+        </div>
+      </div>
+
+      <!-- Estrutura -->
+      <div class="sector-section" data-sector="estrutura">
+        <div class="sector-header">
+          <h3 class="sector-title">
+            <span class="sector-icon">🏢</span>
+            Estrutura
+          </h3>
+          <div class="sector-total" id="total-estrutura">R$ 0,00</div>
+        </div>
+        <div class="sector-content">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Descrição</th>
+                <th style="width: 10%;">Qtd</th>
+                <th style="width: 10%;">Unidade</th>
+                <th style="width: 15%;">Valor Unit.</th>
+                <th style="width: 15%;">Tipo</th>
+                <th style="width: 15%;">Total</th>
+                <th style="width: 5%;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="items-estrutura">
+              <!-- Itens serão inseridos aqui -->
+            </tbody>
+          </table>
+          <button class="btn-add-item" onclick="addItem('estrutura')">
+            <span>+</span> Adicionar Item
+          </button>
+        </div>
+      </div>
+
+      <!-- Esquadrias -->
+      <div class="sector-section" data-sector="esquadrias">
+        <div class="sector-header">
+          <h3 class="sector-title">
+            <span class="sector-icon">🚪</span>
+            Esquadrias
+          </h3>
+          <div class="sector-total" id="total-esquadrias">R$ 0,00</div>
+        </div>
+        <div class="sector-content">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Descrição</th>
+                <th style="width: 10%;">Qtd</th>
+                <th style="width: 10%;">Unidade</th>
+                <th style="width: 15%;">Valor Unit.</th>
+                <th style="width: 15%;">Tipo</th>
+                <th style="width: 15%;">Total</th>
+                <th style="width: 5%;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="items-esquadrias">
+              <!-- Itens serão inseridos aqui -->
+            </tbody>
+          </table>
+          <button class="btn-add-item" onclick="addItem('esquadrias')">
+            <span>+</span> Adicionar Item
+          </button>
+        </div>
+      </div>
+
+      <!-- Cobertura -->
+      <div class="sector-section" data-sector="cobertura">
+        <div class="sector-header">
+          <h3 class="sector-title">
+            <span class="sector-icon">🏠</span>
+            Cobertura
+          </h3>
+          <div class="sector-total" id="total-cobertura">R$ 0,00</div>
+        </div>
+        <div class="sector-content">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Descrição</th>
+                <th style="width: 10%;">Qtd</th>
+                <th style="width: 10%;">Unidade</th>
+                <th style="width: 15%;">Valor Unit.</th>
+                <th style="width: 15%;">Tipo</th>
+                <th style="width: 15%;">Total</th>
+                <th style="width: 5%;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="items-cobertura">
+              <!-- Itens serão inseridos aqui -->
+            </tbody>
+          </table>
+          <button class="btn-add-item" onclick="addItem('cobertura')">
+            <span>+</span> Adicionar Item
+          </button>
+        </div>
+      </div>
+
+      <!-- Instalações -->
+      <div class="sector-section" data-sector="instalacoes">
+        <div class="sector-header">
+          <h3 class="sector-title">
+            <span class="sector-icon">⚡</span>
+            Instalações (Elétrica, Hidráulica, SPDA)
+          </h3>
+          <div class="sector-total" id="total-instalacoes">R$ 0,00</div>
+        </div>
+        <div class="sector-content">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Descrição</th>
+                <th style="width: 10%;">Qtd</th>
+                <th style="width: 10%;">Unidade</th>
+                <th style="width: 15%;">Valor Unit.</th>
+                <th style="width: 15%;">Tipo</th>
+                <th style="width: 15%;">Total</th>
+                <th style="width: 5%;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="items-instalacoes">
+              <!-- Itens serão inseridos aqui -->
+            </tbody>
+          </table>
+          <button class="btn-add-item" onclick="addItem('instalacoes')">
+            <span>+</span> Adicionar Item
+          </button>
+        </div>
+      </div>
+
+      <!-- Custos Extras/Indiretos -->
+      <div class="sector-section" data-sector="extras">
+        <div class="sector-header">
+          <h3 class="sector-title">
+            <span class="sector-icon">💰</span>
+            Custos Extras/Indiretos
+          </h3>
+          <div class="sector-total" id="total-extras">R$ 0,00</div>
+        </div>
+        <div class="sector-content">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Descrição</th>
+                <th style="width: 10%;">Qtd</th>
+                <th style="width: 10%;">Unidade</th>
+                <th style="width: 15%;">Valor Unit.</th>
+                <th style="width: 15%;">Tipo</th>
+                <th style="width: 15%;">Total</th>
+                <th style="width: 5%;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="items-extras">
+              <!-- Itens serão inseridos aqui -->
+            </tbody>
+          </table>
+          <button class="btn-add-item" onclick="addItem('extras')">
+            <span>+</span> Adicionar Item
+          </button>
+        </div>
+      </div>
+
+      <!-- Exportação -->
+      <div class="export-section">
+        <h3>Exportar Orçamento</h3>
+        <p>Gere relatórios profissionais do seu orçamento detalhado</p>
+        <div class="export-buttons">
+          <button class="btn-export" onclick="exportToPDF()">
+            📄 Exportar PDF
+          </button>
+          <button class="btn-export secondary" onclick="exportToExcel()">
+            📊 Exportar Excel
+          </button>
+          <button class="btn-export secondary" onclick="saveProject()">
+            💾 Salvar Projeto
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
   <footer class="footer">
-    <!-- ... footer mantido ... -->
+    <div class="container grid">
+      <div>
+        <h4>Sobre a Binex</h4>
+        <p>A Binex Engenharia oferece soluções completas em engenharia civil e arquitetura. Esta área é destinada a colaboradores.</p>
+      </div>
+      <div>
+        <h4>Links rápidos</h4>
+        <p><a href="index.html">Painel</a></p>
+        <p><a href="orcamento.html">Orçamento Simples</a></p>
+        <p><a href="orcamento_detalhado_novo.html">Orçamento Detalhado</a></p>
+        <p><a href="financeiro_novo.html">Financeiro</a></p>
+        <p><a href="checklists_novo.html">Checklists</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 Binex Engenharia. Todos os direitos reservados.</div>
   </footer>
 
-  <!-- CORREÇÃO: Logout via função do auth.js -->
+  <!-- Logout via função do auth.js -->
   <script>
     document.getElementById('logoutLink').addEventListener('click', () => {
       window.logout('../index.html');
     });
 
-    // ... Todo o JS original da página permanece, sem afetar o funcionamento do orçamento ...
+    // Dados do orçamento
+    let budgetData = {
+      preliminares: [],
+      estrutura: [],
+      esquadrias: [],
+      cobertura: [],
+      instalacoes: [],
+      extras: []
+    };
+
+    // Contador de IDs únicos
+    let itemIdCounter = 1;
+
+    // Carregar dados salvos
+    function loadBudgetData() {
+      const savedData = localStorage.getItem('budgetData');
+      if (savedData) {
+        budgetData = JSON.parse(savedData);
+        // Reconstruir as tabelas
+        Object.keys(budgetData).forEach(sector => {
+          const tbody = document.getElementById(`items-${sector}`);
+          tbody.innerHTML = '';
+          budgetData[sector].forEach(item => {
+            addItemToTable(sector, item);
+          });
+        });
+        updateAllTotals();
+      } else {
+        // Adicionar itens de exemplo
+        addExampleItems();
+      }
+    }
+
+    // Salvar dados
+    function saveBudgetData() {
+      localStorage.setItem('budgetData', JSON.stringify(budgetData));
+    }
+
+    // Adicionar item
+    function addItem(sector) {
+      const newItem = {
+        id: itemIdCounter++,
+        description: '',
+        quantity: 1,
+        unit: 'un',
+        unitValue: 0,
+        type: 'material',
+        total: 0
+      };
+      
+      budgetData[sector].push(newItem);
+      addItemToTable(sector, newItem);
+      updateSectorTotal(sector);
+      updateAllTotals();
+      saveBudgetData();
+    }
+
+    // Função para formatar moeda brasileira
+function formatBRL(value) {
+  return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// Adicionar item à tabela
+function addItemToTable(sector, item) {
+  const tbody = document.getElementById(`items-${sector}`);
+  const row = document.createElement('tr');
+  row.setAttribute('data-item-id', item.id);
+
+  row.innerHTML = `
+    <td data-label="Descrição">
+      <input type="text" class="item-input" value="${item.description}" 
+             onchange="updateItem('${sector}', ${item.id}, 'description', this.value)">
+    </td>
+    <td data-label="Qtd">
+      <input type="number" class="item-input" value="${item.quantity}" min="0" step="0.01"
+             onchange="updateItem('${sector}', ${item.id}, 'quantity', parseFloat(this.value) || 0)">
+    </td>
+    <td data-label="Unidade">
+      <select class="item-select" onchange="updateItem('${sector}', ${item.id}, 'unit', this.value)">
+        <option value="un" ${item.unit === 'un' ? 'selected' : ''}>un</option>
+        <option value="m" ${item.unit === 'm' ? 'selected' : ''}>m</option>
+        <option value="m²" ${item.unit === 'm²' ? 'selected' : ''}>m²</option>
+        <option value="m³" ${item.unit === 'm³' ? 'selected' : ''}>m³</option>
+        <option value="kg" ${item.unit === 'kg' ? 'selected' : ''}>kg</option>
+        <option value="t" ${item.unit === 't' ? 'selected' : ''}>t</option>
+        <option value="h" ${item.unit === 'h' ? 'selected' : ''}>h</option>
+        <option value="dia" ${item.unit === 'dia' ? 'selected' : ''}>dia</option>
+        <option value="mês" ${item.unit === 'mês' ? 'selected' : ''}>mês</option>
+      </select>
+    </td>
+    <td data-label="Valor Unit.">
+      <input type="number" class="item-input" value="${item.unitValue}" min="0" step="0.01"
+             onchange="updateItem('${sector}', ${item.id}, 'unitValue', parseFloat(this.value) || 0)">
+    </td>
+    <td data-label="Tipo">
+      <select class="item-select" onchange="updateItem('${sector}', ${item.id}, 'type', this.value)">
+        <option value="material" ${item.type === 'material' ? 'selected' : ''}>Material</option>
+        <option value="labor" ${item.type === 'labor' ? 'selected' : ''}>Mão de Obra</option>
+        <option value="both" ${item.type === 'both' ? 'selected' : ''}>Ambos</option>
+      </select>
+    </td>
+    <td data-label="Total">
+      <span class="total-value" id="total-item-${item.id}">${formatBRL(item.total)}</span>
+    </td>
+    <td data-label="Ações">
+      <button class="btn-remove" onclick="removeItem('${sector}', ${item.id})">🗑️</button>
+    </td>
+  `;
+
+  tbody.appendChild(row);
+}
+
+// Atualizar item
+function updateItem(sector, itemId, field, value) {
+  const item = budgetData[sector].find(item => item.id === itemId);
+  if (item) {
+    item[field] = value;
+
+    // Recalcular total do item
+    item.total = item.quantity * item.unitValue;
+
+    // Atualizar display do total do item
+    const totalElement = document.getElementById(`total-item-${itemId}`);
+    if (totalElement) {
+      totalElement.textContent = formatBRL(item.total);
+    }
+
+    updateSectorTotal(sector);
+    updateAllTotals();
+    saveBudgetData();
+  }
+}
+
+// Remover item
+function removeItem(sector, itemId) {
+  if (confirm('Tem certeza que deseja remover este item?')) {
+    budgetData[sector] = budgetData[sector].filter(item => item.id !== itemId);
+    
+    // Remover da tabela
+    const row = document.querySelector(`tr[data-item-id="${itemId}"]`);
+    if (row) {
+      row.remove();
+    }
+    
+    updateSectorTotal(sector);
+    updateAllTotals();
+    saveBudgetData();
+  }
+}
+
+// Atualizar total do setor
+function updateSectorTotal(sector) {
+  const total = budgetData[sector].reduce((sum, item) => sum + item.total, 0);
+  const totalElement = document.getElementById(`total-${sector}`);
+  if (totalElement) {
+    totalElement.textContent = formatBRL(total);
+  }
+}
+
+// Atualizar todos os totais
+function updateAllTotals() {
+  let totalGeral = 0;
+  let totalMateriais = 0;
+  let totalMaoObra = 0;
+  let totalItens = 0;
+
+  Object.keys(budgetData).forEach(sector => {
+    budgetData[sector].forEach(item => {
+      totalGeral += item.total;
+      totalItens++;
+
+      if (item.type === 'material') {
+        totalMateriais += item.total;
+      } else if (item.type === 'labor') {
+        totalMaoObra += item.total;
+      } else if (item.type === 'both') {
+        totalMateriais += item.total / 2;
+        totalMaoObra += item.total / 2;
+      }
+    });
+  });
+
+  document.getElementById('total-geral').textContent = formatBRL(totalGeral);
+  document.getElementById('total-materiais').textContent = formatBRL(totalMateriais);
+  document.getElementById('total-mao-obra').textContent = formatBRL(totalMaoObra);
+  document.getElementById('total-itens').textContent = totalItens;
+}
+
+// Adicionar itens de exemplo
+function addExampleItems() {
+  // Serviços Preliminares
+  budgetData.preliminares = [
+    { id: itemIdCounter++, description: 'Limpeza do terreno', quantity: 500, unit: 'm²', unitValue: 2.50, type: 'labor', total: 1250 },
+    { id: itemIdCounter++, description: 'Locação da obra', quantity: 1, unit: 'un', unitValue: 800, type: 'labor', total: 800 },
+    { id: itemIdCounter++, description: 'Tapume de madeira', quantity: 100, unit: 'm', unitValue: 45, type: 'both', total: 4500 }
+  ];
+  
+  // Estrutura
+  budgetData.estrutura = [
+    { id: itemIdCounter++, description: 'Concreto usinado fck=25MPa', quantity: 50, unit: 'm³', unitValue: 320, type: 'material', total: 16000 },
+    { id: itemIdCounter++, description: 'Aço CA-50 Ø 10mm', quantity: 2500, unit: 'kg', unitValue: 6.80, type: 'material', total: 17000 },
+    { id: itemIdCounter++, description: 'Forma de madeira para pilares', quantity: 200, unit: 'm²', unitValue: 85, type: 'both', total: 17000 }
+  ];
+  
+  // Esquadrias
+  budgetData.esquadrias = [
+    { id: itemIdCounter++, description: 'Porta de madeira 80x210cm', quantity: 8, unit: 'un', unitValue: 450, type: 'material', total: 3600 },
+    { id: itemIdCounter++, description: 'Janela de alumínio 120x100cm', quantity: 12, unit: 'un', unitValue: 380, type: 'material', total: 4560 },
+    { id: itemIdCounter++, description: 'Instalação de esquadrias', quantity: 20, unit: 'un', unitValue: 120, type: 'labor', total: 2400 }
+  ];
+  
+  // Cobertura
+  budgetData.cobertura = [
+    { id: itemIdCounter++, description: 'Telha cerâmica', quantity: 300, unit: 'm²', unitValue: 28, type: 'material', total: 8400 },
+    { id: itemIdCounter++, description: 'Estrutura de madeira para telhado', quantity: 300, unit: 'm²', unitValue: 65, type: 'both', total: 19500 },
+    { id: itemIdCounter++, description: 'Calha de PVC', quantity: 80, unit: 'm', unitValue: 35, type: 'material', total: 2800 }
+  ];
+  
+  // Instalações
+  budgetData.instalacoes = [
+    { id: itemIdCounter++, description: 'Instalação elétrica completa', quantity: 250, unit: 'm²', unitValue: 85, type: 'both', total: 21250 },
+    { id: itemIdCounter++, description: 'Instalação hidráulica', quantity: 250, unit: 'm²', unitValue: 65, type: 'both', total: 16250 },
+    { id: itemIdCounter++, description: 'SPDA (Para-raios)', quantity: 1, unit: 'un', unitValue: 3500, type: 'both', total: 3500 }
+  ];
+  
+  // Custos Extras
+  budgetData.extras = [
+    { id: itemIdCounter++, description: 'Aluguel de betoneira', quantity: 6, unit: 'mês', unitValue: 800, type: 'labor', total: 4800 },
+    { id: itemIdCounter++, description: 'Transporte de materiais', quantity: 1, unit: 'un', unitValue: 2500, type: 'labor', total: 2500 },
+    { id: itemIdCounter++, description: 'Seguro da obra', quantity: 1, unit: 'un', unitValue: 1800, type: 'labor', total: 1800 }
+  ];
+  
+  // Recalcular totais dos itens
+  Object.keys(budgetData).forEach(sector => {
+    budgetData[sector].forEach(item => {
+      item.total = item.quantity * item.unitValue;
+    });
+  });
+  
+  saveBudgetData();
+}
+
+// Exportar para PDF
+function exportToPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  
+  // Cabeçalho
+  doc.setFontSize(20);
+  doc.text('ORÇAMENTO DETALHADO', 20, 30);
+  doc.setFontSize(12);
+  doc.text('Binex Engenharia', 20, 40);
+  doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 20, 50);
+  
+  let yPosition = 70;
+  
+  // Resumo
+  const totalGeral = document.getElementById('total-geral').textContent;
+  const totalMateriais = document.getElementById('total-materiais').textContent;
+  const totalMaoObra = document.getElementById('total-mao-obra').textContent;
+  
+  doc.setFontSize(14);
+  doc.text('RESUMO GERAL', 20, yPosition);
+  yPosition += 15;
+  
+  doc.setFontSize(10);
+  doc.text(`Total Geral: ${totalGeral}`, 20, yPosition);
+  doc.text(`Total Materiais: ${totalMateriais}`, 20, yPosition + 10);
+  doc.text(`Total Mão de Obra: ${totalMaoObra}`, 20, yPosition + 20);
+  yPosition += 40;
+  
+  // Setores
+  const sectors = [
+    { key: 'preliminares', name: 'Serviços Preliminares' },
+    { key: 'estrutura', name: 'Estrutura' },
+    { key: 'esquadrias', name: 'Esquadrias' },
+    { key: 'cobertura', name: 'Cobertura' },
+    { key: 'instalacoes', name: 'Instalações' },
+    { key: 'extras', name: 'Custos Extras/Indiretos' }
+  ];
+  
+  sectors.forEach(sector => {
+    if (budgetData[sector.key].length > 0) {
+      // Verificar se precisa de nova página
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      doc.setFontSize(12);
+      doc.text(sector.name.toUpperCase(), 20, yPosition);
+      yPosition += 10;
+      
+      doc.setFontSize(8);
+      budgetData[sector.key].forEach(item => {
+        if (yPosition > 280) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        
+        const line = `${item.description} - ${item.quantity} ${item.unit} x ${formatBRL(item.unitValue)} = ${formatBRL(item.total)}`;
+        doc.text(line, 25, yPosition);
+        yPosition += 8;
+      });
+      
+      const sectorTotal = document.getElementById(`total-${sector.key}`).textContent;
+      doc.setFontSize(10);
+      doc.text(`Subtotal: ${sectorTotal}`, 25, yPosition);
+      yPosition += 15;
+    }
+  });
+  
+  doc.save(`orcamento-detalhado-${new Date().toISOString().split('T')[0]}.pdf`);
+}
+
+// Exportar para Excel (simulado com CSV)
+function exportToExcel() {
+  let csvContent = 'Setor,Descrição,Quantidade,Unidade,Valor Unitário,Tipo,Total\n';
+  
+  const sectors = [
+    { key: 'preliminares', name: 'Serviços Preliminares' },
+    { key: 'estrutura', name: 'Estrutura' },
+    { key: 'esquadrias', name: 'Esquadrias' },
+    { key: 'cobertura', name: 'Cobertura' },
+    { key: 'instalacoes', name: 'Instalações' },
+    { key: 'extras', name: 'Custos Extras/Indiretos' }
+  ];
+  
+  sectors.forEach(sector => {
+    budgetData[sector.key].forEach(item => {
+      csvContent += `"${sector.name}","${item.description}",${item.quantity},"${item.unit}",${item.unitValue},"${item.type}",${item.total}\n`;
+    });
+  });
+  
+  // Adicionar totais
+  csvContent += '\n';
+  csvContent += `"TOTAL GERAL","","","","","",${document.getElementById('total-geral').textContent.replace('R$ ', '')}\n`;
+  csvContent += `"TOTAL MATERIAIS","","","","","",${document.getElementById('total-materiais').textContent.replace('R$ ', '')}\n`;
+  csvContent += `"TOTAL MÃO DE OBRA","","","","","",${document.getElementById('total-mao-obra').textContent.replace('R$ ', '')}\n`;
+  
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `orcamento-detalhado-${new Date().toISOString().split('T')[0]}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// Salvar projeto
+function saveProject() {
+  const projectData = {
+    budgetData: budgetData,
+    timestamp: new Date().toISOString(),
+    totals: {
+      geral: document.getElementById('total-geral').textContent,
+      materiais: document.getElementById('total-materiais').textContent,
+      maoObra: document.getElementById('total-mao-obra').textContent,
+      itens: document.getElementById('total-itens').textContent
+    }
+  };
+  
+  const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `projeto-orcamento-${new Date().toISOString().split('T')[0]}.json`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  alert('Projeto salvo com sucesso!');
+}
+
+// Inicializar aplicação
+document.addEventListener('DOMContentLoaded', () => {
+  loadBudgetData();
+  
+  // Reconstruir tabelas
+  Object.keys(budgetData).forEach(sector => {
+    budgetData[sector].forEach(item => {
+      addItemToTable(sector, item);
+    });
+    updateSectorTotal(sector);
+  });
+  
+  updateAllTotals();
+});
   </script>
 </body>
 </html>
+
