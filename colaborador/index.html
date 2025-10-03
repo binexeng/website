@@ -7,7 +7,37 @@
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-  
+  <!-- Diagnóstico de autenticação -->
+<div id="auth-debug" style="background:#ffe3e3;padding:1em;color:#a00;margin-bottom:1em;border-radius:5px;display:none"></div>
+<script src="../assets/js/auth.js"></script>
+<script>
+  // Função de diagnóstico
+  function getCookie(name) {
+    const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  const debugDiv = document.getElementById('auth-debug');
+  const fbCookie = getCookie('fb');
+  if (!fbCookie) {
+    debugDiv.style.display = 'block';
+    debugDiv.innerHTML = `
+      <strong>Diagnóstico de acesso:</strong><br>
+      O cookie <code>fb</code> NÃO foi encontrado.<br>
+      Você será redirecionado para o login.<br>
+      <br>
+      Possíveis causas:<br>
+      - Cookie expirou ou não foi gravado corretamente.<br>
+      - Política do navegador bloqueando cookies.<br>
+      - Problema no Path/SameSite/Secure.<br>
+      <br>
+      <strong>document.cookie:</strong> <pre>${document.cookie}</pre>
+    `;
+    setTimeout(function() {
+      window.location.href = '../login.html';
+    }, 5000); // Espera 5 segundos antes de redirecionar
+  }
+</script>
+<!-- Fim do diagnóstico -->
   <script src="../assets/js/auth.js"></script>
   <script>
     window.requireLogin('../login.html');
