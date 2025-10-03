@@ -3,3 +3,15 @@
 [[edge_functions]]
   path = "/colaborador/financeiro_novo*"
   function = "protect-finance"
+[[headers]]
+for = "/*"
+  [headers.values]
+  # CSP: aqui permitimos 'unsafe-eval' para destravar Firebase/compat e afins
+  Content-Security-Policy = """
+  default-src 'self';
+  script-src 'self' 'unsafe-eval' https://www.gstatic.com https://www.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com https://accounts.google.com;
+  connect-src 'self' https://*.firebaseio.com https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com wss://*.firebaseio.com;
+  img-src 'self' data: https:;
+  style-src 'self' 'unsafe-inline';
+  frame-src https://*.firebaseapp.com https://accounts.google.com https://*.google.com;
+  """
