@@ -1,3 +1,860 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo Financeiro | Binex Engenharia</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <style>
+    .financial-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .financial-header {
+      background: linear-gradient(135deg, #4caf50, #388e3c);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    .financial-header h2 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2rem;
+    }
+    
+    .financial-header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+    
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .dashboard-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-color);
+    }
+    
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    
+    .card-value {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 0.5rem 0;
+    }
+    
+    .card-label {
+      color: #666;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .card-change {
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      display: inline-block;
+    }
+    
+    .positive {
+      background: #e8f5e8;
+      color: #388e3c;
+    }
+    
+    .negative {
+      background: #ffebee;
+      color: #d32f2f;
+    }
+    
+    .revenue { --primary-color: #4caf50; }
+    .expense { --primary-color: #f44336; }
+    .balance { --primary-color: #2196f3; }
+    .projection { --primary-color: #ff9800; }
+    
+    .revenue .card-value { color: #4caf50; }
+    .expense .card-value { color: #f44336; }
+    .balance .card-value { color: #2196f3; }
+    .projection .card-value { color: #ff9800; }
+    
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .content-section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .section-header {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .section-title {
+      margin: 0;
+      font-size: 1.25rem;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .section-content {
+      padding: 1.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+    }
+    
+    .form-select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      background: white;
+    }
+    
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    
+    .btn-primary:hover {
+      background: #1976d2;
+    }
+    
+    .btn-success {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    
+    .btn-success:hover {
+      background: #388e3c;
+    }
+    
+    .btn-danger {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.3s;
+    }
+    
+    .btn-danger:hover {
+      background: #d32f2f;
+    }
+    
+    .transactions-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    
+    .transactions-table th {
+      background: #f8f9fa;
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #dee2e6;
+    }
+    
+    .transactions-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .transactions-table tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .transaction-type {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .type-revenue {
+      background: #e8f5e8;
+      color: #388e3c;
+    }
+    
+    .type-expense {
+      background: #ffebee;
+      color: #d32f2f;
+    }
+    
+    .type-fixed {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .charts-section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+    
+    .fixed-expenses-section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .fixed-expenses-list {
+      padding: 1.5rem;
+    }
+    
+    .fixed-expense-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .expense-info {
+      flex: 1;
+    }
+    
+    .expense-name {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    
+    .expense-value {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .reports-section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .export-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    
+    .btn-export {
+      background: #ff9800;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.3s;
+    }
+    
+    .btn-export:hover {
+      background: #f57c00;
+    }
+    
+    .btn-export.pdf {
+      background: #e53935;
+    }
+    
+    .btn-export.pdf:hover {
+      background: #c62828;
+    }
+    
+    /* Estilos para Configuração de Projeção */
+    .projection-settings-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .projection-config {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-top: 1.5rem;
+    }
+    
+    .config-card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 1.5rem;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .config-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .config-header h4 {
+      margin: 0;
+      color: var(--dark-text);
+    }
+    
+    .btn-toggle {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-toggle:hover {
+      background: var(--secondary-color);
+    }
+    
+    .config-content {
+      animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .config-row {
+      margin-bottom: 1.5rem;
+    }
+    
+    .config-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--dark-text);
+    }
+    
+    .config-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    
+    .config-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(13, 71, 161, 0.2);
+    }
+    
+    .config-help {
+      display: block;
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.25rem;
+      font-style: italic;
+    }
+    
+    .config-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .btn-config {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-config.save {
+      background: var(--success-color);
+      color: white;
+    }
+    
+    .btn-config.save:hover {
+      background: #388e3c;
+    }
+    
+    .btn-config.reset {
+      background: #ff9800;
+      color: white;
+    }
+    
+    .btn-config.reset:hover {
+      background: #f57c00;
+    }
+    
+    .projection-preview {
+      background: white;
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    
+    .projection-preview h4 {
+      margin: 0 0 1rem 0;
+      color: var(--primary-color);
+      text-align: center;
+    }
+    
+    .preview-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .preview-item:last-child {
+      border-bottom: none;
+    }
+    
+    .preview-label {
+      font-weight: 500;
+      color: var(--dark-text);
+    }
+    
+    .preview-value {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    
+    .preview-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0 0 0;
+      margin-top: 1rem;
+      border-top: 2px solid var(--primary-color);
+      font-size: 1.1rem;
+    }
+    
+    .preview-total .preview-label {
+      font-weight: 700;
+      color: var(--dark-text);
+    }
+    
+    .preview-total .preview-value {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--success-color);
+    }
+    
+    @media (max-width: 768px) {
+      .financial-container {
+        padding: 1rem;
+      }
+      
+      .dashboard-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .export-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .projection-config {
+        grid-template-columns: 1fr;
+      }
+      
+      .config-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Proteção via Firebase cookie -->
+  <script>
+    window.requireLogin('../login.html');
+  </script>
+  
+  <nav>
+    <div class="container">
+      <div class="logo">
+        <img src="../assets/images/logo.png" alt="Binex Engenharia logo">
+        <span>Binex Engenharia</span>
+      </div>
+      <button id="nav-toggle" aria-label="Abrir menu" style="background:none;border:none;color:var(--light-text);font-size:1.5rem;display:none;">☰</button>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="orcamento.html">Orçamento Simples</a></li>
+        <li><a href="orcamento_detalhado_novo.html">Orçamento Detalhado</a></li>
+        <li><a href="financeiro_novo.html" class="active">Financeiro</a></li>
+        <li><a href="checklists.html">Checklists</a></li>
+        <li><a href="javascript:void(0);" id="logoutLink">Sair</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="financial-container">
+      <!-- Header -->
+      <div class="financial-header">
+        <h2>Módulo Financeiro</h2>
+        <p>Dashboard completo para controle de entradas, saídas e projeções financeiras</p>
+      </div>
+
+      <!-- Dashboard Cards -->
+      <div class="dashboard-cards">
+        <div class="dashboard-card revenue">
+          <span class="card-icon">💰</span>
+          <div class="card-value" id="total-revenue">R$ 0,00</div>
+          <div class="card-label">Receitas do Mês</div>
+          <div class="card-change positive" id="revenue-change">+0%</div>
+        </div>
+        
+        <div class="dashboard-card expense">
+          <span class="card-icon">💸</span>
+          <div class="card-value" id="total-expenses">R$ 0,00</div>
+          <div class="card-label">Despesas do Mês</div>
+          <div class="card-change negative" id="expenses-change">+0%</div>
+        </div>
+        
+        <div class="dashboard-card balance">
+          <span class="card-icon">📊</span>
+          <div class="card-value" id="current-balance">R$ 0,00</div>
+          <div class="card-label">Saldo Atual</div>
+          <div class="card-change positive" id="balance-change">+0%</div>
+        </div>
+        
+        <div class="dashboard-card projection">
+          <span class="card-icon">🔮</span>
+          <div class="card-value" id="future-projection">R$ 0,00</div>
+          <div class="card-label">Projeção Próximo Mês</div>
+          <div class="card-change positive" id="projection-change">+0%</div>
+        </div>
+      </div>
+
+      <!-- Content Grid -->
+      <div class="content-grid">
+        <!-- Lançamentos -->
+        <div class="content-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <span>📝</span>
+              Lançamentos Financeiros
+            </h3>
+          </div>
+          <div class="section-content">
+            <form id="transaction-form">
+              <div class="form-group">
+                <label class="form-label">Descrição</label>
+                <input type="text" class="form-input" id="transaction-description" required>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Valor (R$)</label>
+                <input type="number" class="form-input" id="transaction-value" step="0.01" required>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Tipo</label>
+                <select class="form-select" id="transaction-type" required>
+                  <option value="">Selecione...</option>
+                  <option value="revenue">Receita</option>
+                  <option value="expense">Despesa</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Categoria</label>
+                <select class="form-select" id="transaction-category" required>
+                  <option value="">Selecione...</option>
+                  <option value="preliminares">Serviços Preliminares</option>
+                  <option value="estrutura">Estrutura</option>
+                  <option value="esquadrias">Esquadrias</option>
+                  <option value="cobertura">Cobertura</option>
+                  <option value="instalacoes">Instalações</option>
+                  <option value="extras">Custos Extras</option>
+                  <option value="administrativo">Administrativo</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="outros">Outros</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Data</label>
+                <input type="date" class="form-input" id="transaction-date" required>
+              </div>
+              
+              <button type="submit" class="btn-success">Adicionar Lançamento</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Histórico de Transações -->
+        <div class="content-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <span>📋</span>
+              Histórico de Transações
+            </h3>
+          </div>
+          <div class="section-content">
+            <table class="transactions-table">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Tipo</th>
+                  <th>Valor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="transactions-list">
+                <!-- Transações serão inseridas aqui -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gastos Fixos -->
+      <div class="fixed-expenses-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <span>🏢</span>
+            Gastos Fixos Mensais
+          </h3>
+        </div>
+        <div class="fixed-expenses-list">
+          <div class="form-group" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <input type="text" class="form-input" id="fixed-expense-name" placeholder="Nome do gasto fixo" style="flex: 2;">
+            <input type="number" class="form-input" id="fixed-expense-value" placeholder="Valor (R$)" step="0.01" style="flex: 1;">
+            <button type="button" class="btn-primary" onclick="addFixedExpense()">Adicionar</button>
+          </div>
+          <div id="fixed-expenses-container">
+            <!-- Gastos fixos serão inseridos aqui -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="charts-section">
+        <h3>📈 Análise Financeira</h3>
+        <div class="charts-grid">
+          <div class="chart-container">
+            <canvas id="revenueExpenseChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="categoryDistributionChart"></canvas>
+          </div>
+        </div>
+        <div class="charts-grid" style="margin-top: 2rem;">
+          <div class="chart-container">
+            <canvas id="monthlyEvolutionChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="cashFlowProjectionChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Configurações de Projeção -->
+      <div class="projection-settings-section">
+        <h3>⚙️ Configurações de Projeção</h3>
+        <p>Ajuste os fatores utilizados no cálculo da projeção financeira para o próximo mês</p>
+        <div class="projection-config">
+          <div class="config-card">
+            <div class="config-header">
+              <h4>Fatores de Projeção</h4>
+              <button class="btn-toggle" onclick="toggleProjectionSettings()">
+                <span id="toggle-icon">▼</span> Configurar
+              </button>
+            </div>
+            <div class="config-content" id="projection-config-content" style="display: none;">
+              <div class="config-row">
+                <label class="config-label">Fator de Receita Futura (%)</label>
+                <input type="number" class="config-input" id="revenue-factor" value="90" min="0" max="200" step="1">
+                <span class="config-help">Percentual da receita atual que se espera manter no próximo mês</span>
+              </div>
+              <div class="config-row">
+                <label class="config-label">Fator de Crescimento (%)</label>
+                <input type="number" class="config-input" id="growth-factor" value="5" min="-50" max="100" step="1">
+                <span class="config-help">Percentual de crescimento esperado sobre a receita base</span>
+              </div>
+              <div class="config-row">
+                <label class="config-label">Fator de Despesas Extras (%)</label>
+                <input type="number" class="config-input" id="extra-expenses-factor" value="10" min="0" max="100" step="1">
+                <span class="config-help">Percentual adicional de despesas imprevistas</span>
+              </div>
+              <div class="config-row">
+                <label class="config-label">Reserva de Emergência (%)</label>
+                <input type="number" class="config-input" id="emergency-reserve" value="15" min="0" max="50" step="1">
+                <span class="config-help">Percentual a ser reservado para emergências</span>
+              </div>
+              <div class="config-actions">
+                <button class="btn-config save" onclick="saveProjectionSettings()">
+                  💾 Salvar Configurações
+                </button>
+                <button class="btn-config reset" onclick="resetProjectionSettings()">
+                  🔄 Restaurar Padrão
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="projection-preview">
+            <h4>Prévia da Projeção</h4>
+            <div class="preview-item">
+              <span class="preview-label">Receita Base:</span>
+              <span class="preview-value" id="preview-base-revenue">R$ 0,00</span>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">Receita Projetada:</span>
+              <span class="preview-value" id="preview-projected-revenue">R$ 0,00</span>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">Despesas Fixas:</span>
+              <span class="preview-value" id="preview-fixed-expenses">R$ 0,00</span>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">Despesas Extras:</span>
+              <span class="preview-value" id="preview-extra-expenses">R$ 0,00</span>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">Reserva Emergência:</span>
+              <span class="preview-value" id="preview-emergency">R$ 0,00</span>
+            </div>
+            <div class="preview-total">
+              <span class="preview-label">Projeção Final:</span>
+              <span class="preview-value" id="preview-final-projection">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Relatórios -->
+      <div class="reports-section">
+        <h3>📊 Relatórios Financeiros</h3>
+        <p>Gere relatórios detalhados da situação financeira da empresa</p>
+        <div class="export-buttons">
+          <button class="btn-export pdf" onclick="exportFinancialPDF()">
+            📄 Relatório PDF
+          </button>
+          <button class="btn-export" onclick="exportFinancialExcel()">
+            📊 Planilha Excel
+          </button>
+          <button class="btn-export" onclick="generateAutomaticReport()">
+            🤖 Resumo Automático
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -19,24 +876,845 @@
     <div class="footer-bottom">&copy; 2025 Binex Engenharia. Todos os direitos reservados.</div>
   </footer>
 
-  <!-- LOGOUT: agora usa signOut() do Firebase (apenas esta troca) -->
-  <script type="module">
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    const auth = getAuth();
-    const $logout = document.getElementById('logoutLink');
-    if ($logout) {
-      $logout.addEventListener('click', async (e) => {
-        e.preventDefault();
-        try { await signOut(auth); } catch (err) { /* silencioso */ }
-        window.location.href = '../index.html';
-      });
-    }
+  <!-- Logout via função do auth.js -->
+  <script>
+    document.getElementById('logoutLink').addEventListener('click', () => {
+      window.logout('../index.html');
+    });
   </script>
 
-  <!-- TODO o JS da aplicação (SEU código original intacto) -->
+  <!-- TODO o JS da aplicação mantido abaixo (apenas removido sessionStorage para login) -->
   <script>
-    // (todo o JavaScript que já estava no arquivo foi mantido sem alterações)
-    // ...
+    // Dados financeiros
+    let financialData = {
+      transactions: [],
+      fixedExpenses: []
+    };
+
+    // Contador de IDs
+    let transactionIdCounter = 1;
+    let fixedExpenseIdCounter = 1;
+
+    // Gráficos
+    let charts = {};
+
+    // Carregar dados salvos
+    function loadFinancialData() {
+      const savedData = localStorage.getItem('financialData');
+      if (savedData) {
+        financialData = JSON.parse(savedData);
+        renderTransactions();
+        renderFixedExpenses();
+      } else {
+        // Adicionar dados de exemplo
+        addExampleData();
+      }
+      updateDashboard();
+      updateCharts();
+    }
+
+    // Salvar dados
+    function saveFinancialData() {
+      localStorage.setItem('financialData', JSON.stringify(financialData));
+    }
+
+    // Adicionar dados de exemplo
+    function addExampleData() {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      
+      // Transações de exemplo
+      financialData.transactions = [
+        {
+          id: transactionIdCounter++,
+          description: 'Projeto Residencial Santos',
+          value: 85000,
+          type: 'revenue',
+          category: 'estrutura',
+          date: new Date(currentYear, currentMonth, 5).toISOString().split('T')[0]
+        },
+        {
+          id: transactionIdCounter++,
+          description: 'Compra de materiais - Cimento',
+          value: 12500,
+          type: 'expense',
+          category: 'estrutura',
+          date: new Date(currentYear, currentMonth, 8).toISOString().split('T')[0]
+        },
+        {
+          id: transactionIdCounter++,
+          description: 'Projeto Comercial Centro',
+          value: 120000,
+          type: 'revenue',
+          category: 'instalacoes',
+          date: new Date(currentYear, currentMonth, 12).toISOString().split('T')[0]
+        },
+        {
+          id: transactionIdCounter++,
+          description: 'Esquadrias de Alumínio',
+          value: 18000,
+          type: 'expense',
+          category: 'esquadrias',
+          date: new Date(currentYear, currentMonth, 15).toISOString().split('T')[0]
+        },
+        {
+          id: transactionIdCounter++,
+          description: 'Consultoria Estrutural',
+          value: 45000,
+          type: 'revenue',
+          category: 'estrutura',
+          date: new Date(currentYear, currentMonth, 18).toISOString().split('T')[0]
+        },
+        {
+          id: transactionIdCounter++,
+          description: 'Telhas e Cobertura',
+          value: 8500,
+          type: 'expense',
+          category: 'cobertura',
+          date: new Date(currentYear, currentMonth, 20).toISOString().split('T')[0]
+        }
+      ];
+      
+      // Gastos fixos de exemplo
+      financialData.fixedExpenses = [
+        { id: fixedExpenseIdCounter++, name: 'Aluguel do Escritório', value: 4500 },
+        { id: fixedExpenseIdCounter++, name: 'Internet e Telefone', value: 350 },
+        { id: fixedExpenseIdCounter++, name: 'Salários', value: 18000 },
+        { id: fixedExpenseIdCounter++, name: 'Energia Elétrica', value: 800 },
+        { id: fixedExpenseIdCounter++, name: 'Seguro Empresarial', value: 1200 },
+        { id: fixedExpenseIdCounter++, name: 'Software e Licenças', value: 950 }
+      ];
+      
+      saveFinancialData();
+    }
+
+    // Adicionar transação
+    document.getElementById('transaction-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const description = document.getElementById('transaction-description').value;
+      const value = parseFloat(document.getElementById('transaction-value').value);
+      const type = document.getElementById('transaction-type').value;
+      const category = document.getElementById('transaction-category').value;
+      const date = document.getElementById('transaction-date').value;
+      
+      const transaction = {
+        id: transactionIdCounter++,
+        description,
+        value,
+        type,
+        category,
+        date
+      };
+      
+      financialData.transactions.push(transaction);
+      saveFinancialData();
+      renderTransactions();
+      updateDashboard();
+      updateCharts();
+      
+      // Limpar formulário
+      document.getElementById('transaction-form').reset();
+      document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
+    });
+
+    // Renderizar transações
+    function renderTransactions() {
+      const tbody = document.getElementById('transactions-list');
+      tbody.innerHTML = '';
+      
+      // Ordenar por data (mais recente primeiro)
+      const sortedTransactions = [...financialData.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      sortedTransactions.forEach(transaction => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${new Date(transaction.date).toLocaleDateString('pt-BR')}</td>
+          <td>${transaction.description}</td>
+          <td>
+            <span class="transaction-type type-${transaction.type}">
+              ${transaction.type === 'revenue' ? 'Receita' : 'Despesa'}
+            </span>
+          </td>
+          <td style="color: ${transaction.type === 'revenue' ? '#4caf50' : '#f44336'};">
+            ${transaction.type === 'revenue' ? '+' : '-'} ${formatBRL(transaction.value)}
+          </td>
+          <td>
+            <button class="btn-danger" onclick="removeTransaction(${transaction.id})">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Remover transação
+    function removeTransaction(id) {
+      if (confirm('Tem certeza que deseja remover esta transação?')) {
+        financialData.transactions = financialData.transactions.filter(t => t.id !== id);
+        saveFinancialData();
+        renderTransactions();
+        updateDashboard();
+        updateCharts();
+      }
+    }
+
+    // Adicionar gasto fixo
+    function addFixedExpense() {
+      const name = document.getElementById('fixed-expense-name').value.trim();
+      const value = parseFloat(document.getElementById('fixed-expense-value').value);
+      
+      if (!name || !value || value <= 0) {
+        alert('Por favor, preencha todos os campos corretamente.');
+        return;
+      }
+      
+      const fixedExpense = {
+        id: fixedExpenseIdCounter++,
+        name,
+        value
+      };
+      
+      financialData.fixedExpenses.push(fixedExpense);
+      saveFinancialData();
+      renderFixedExpenses();
+      updateDashboard();
+      updateCharts();
+      
+      // Limpar campos
+      document.getElementById('fixed-expense-name').value = '';
+      document.getElementById('fixed-expense-value').value = '';
+    }
+
+    // Renderizar gastos fixos
+    function renderFixedExpenses() {
+      const container = document.getElementById('fixed-expenses-container');
+      container.innerHTML = '';
+      
+      financialData.fixedExpenses.forEach(expense => {
+        const item = document.createElement('div');
+        item.className = 'fixed-expense-item';
+        item.innerHTML = `
+          <div class="expense-info">
+            <div class="expense-name">${expense.name}</div>
+            <div class="expense-value">${formatBRL(expense.value)} / mês</div>
+          </div>
+          <button class="btn-danger" onclick="removeFixedExpense(${expense.id})">🗑️</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Remover gasto fixo
+    function removeFixedExpense(id) {
+      if (confirm('Tem certeza que deseja remover este gasto fixo?')) {
+        financialData.fixedExpenses = financialData.fixedExpenses.filter(e => e.id !== id);
+        saveFinancialData();
+        renderFixedExpenses();
+        updateDashboard();
+        updateCharts();
+      }
+    }
+
+    // Atualizar dashboard
+    function updateDashboard() {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      
+      // Filtrar transações do mês atual
+      const currentMonthTransactions = financialData.transactions.filter(t => {
+        const transactionDate = new Date(t.date);
+        return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear;
+      });
+      
+      // Calcular totais
+      const totalRevenue = currentMonthTransactions
+        .filter(t => t.type === 'revenue')
+        .reduce((sum, t) => sum + t.value, 0);
+      
+      const totalExpenses = currentMonthTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.value, 0);
+      
+      const totalFixedExpenses = financialData.fixedExpenses.reduce((sum, e) => sum + e.value, 0);
+      
+      const currentBalance = totalRevenue - totalExpenses - totalFixedExpenses;
+      
+      // Projeção para o próximo mês usando fatores configuráveis
+      const projectionSettings = getProjectionSettings();
+      const projectedRevenue = totalRevenue * (projectionSettings.revenueFactor / 100) * (1 + projectionSettings.growthFactor / 100);
+      const extraExpenses = projectedRevenue * (projectionSettings.extraExpensesFactor / 100);
+      const emergencyReserve = projectedRevenue * (projectionSettings.emergencyReserve / 100);
+      const futureProjection = projectedRevenue - totalFixedExpenses - extraExpenses - emergencyReserve;
+      
+      // Atualizar elementos
+      document.getElementById('total-revenue').textContent = formatBRL(totalRevenue);
+      document.getElementById('total-expenses').textContent = formatBRL(totalExpenses + totalFixedExpenses);
+      document.getElementById('current-balance').textContent = formatBRL(currentBalance);
+      document.getElementById('future-projection').textContent = formatBRL(futureProjection);
+      
+      // Calcular variações (simuladas)
+      document.getElementById('revenue-change').textContent = '+12.5%';
+      document.getElementById('expenses-change').textContent = '+8.3%';
+      document.getElementById('balance-change').textContent = currentBalance >= 0 ? '+15.2%' : '-5.8%';
+      document.getElementById('projection-change').textContent = futureProjection >= 0 ? '+10.1%' : '-3.2%';
+      
+      // Atualizar classes de mudança
+      document.getElementById('balance-change').className = `card-change ${currentBalance >= 0 ? 'positive' : 'negative'}`;
+      document.getElementById('projection-change').className = `card-change ${futureProjection >= 0 ? 'positive' : 'negative'}`;
+    }
+
+    // Atualizar gráficos
+    function updateCharts() {
+      updateRevenueExpenseChart();
+      updateCategoryDistributionChart();
+      updateMonthlyEvolutionChart();
+      updateCashFlowProjectionChart();
+    }
+
+    // Gráfico Receitas vs Despesas
+    function updateRevenueExpenseChart() {
+      const ctx = document.getElementById('revenueExpenseChart').getContext('2d');
+      
+      if (charts.revenueExpense) {
+        charts.revenueExpense.destroy();
+      }
+      
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      
+      const currentMonthTransactions = financialData.transactions.filter(t => {
+        const transactionDate = new Date(t.date);
+        return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear;
+      });
+      
+      const totalRevenue = currentMonthTransactions
+        .filter(t => t.type === 'revenue')
+        .reduce((sum, t) => sum + t.value, 0);
+      
+      const totalExpenses = currentMonthTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.value, 0);
+      
+      const totalFixedExpenses = financialData.fixedExpenses.reduce((sum, e) => sum + e.value, 0);
+      
+      charts.revenueExpense = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Receitas', 'Despesas Variáveis', 'Despesas Fixas'],
+          datasets: [{
+            data: [totalRevenue, totalExpenses, totalFixedExpenses],
+            backgroundColor: ['#4caf50', '#f44336', '#ff9800'],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Receitas vs Despesas'
+            },
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    // Gráfico Distribuição por Categoria
+    function updateCategoryDistributionChart() {
+      const ctx = document.getElementById('categoryDistributionChart').getContext('2d');
+      
+      if (charts.categoryDistribution) {
+        charts.categoryDistribution.destroy();
+      }
+      
+      // Agrupar despesas por categoria
+      const categoryTotals = {};
+      financialData.transactions
+        .filter(t => t.type === 'expense')
+        .forEach(t => {
+          categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.value;
+        });
+      
+      const labels = Object.keys(categoryTotals);
+      const data = Object.values(categoryTotals);
+      const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688'];
+      
+      charts.categoryDistribution = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels.map(label => {
+            const categoryNames = {
+              'preliminares': 'Preliminares',
+              'estrutura': 'Estrutura',
+              'esquadrias': 'Esquadrias',
+              'cobertura': 'Cobertura',
+              'instalacoes': 'Instalações',
+              'extras': 'Extras',
+              'administrativo': 'Administrativo',
+              'marketing': 'Marketing',
+              'outros': 'Outros'
+            };
+            return categoryNames[label] || label;
+          }),
+          datasets: [{
+            label: 'Gastos por Categoria',
+            data: data,
+            backgroundColor: colors.slice(0, labels.length),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Distribuição de Gastos por Categoria'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return 'R$ ' + value.toLocaleString('pt-BR');
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Gráfico Evolução Mensal
+    function updateMonthlyEvolutionChart() {
+      const ctx = document.getElementById('monthlyEvolutionChart').getContext('2d');
+      
+      if (charts.monthlyEvolution) {
+        charts.monthlyEvolution.destroy();
+      }
+      
+      // Gerar dados dos últimos 6 meses
+      const months = [];
+      const revenues = [];
+      const expenses = [];
+      
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        
+        const monthName = date.toLocaleDateString('pt-BR', { month: 'short' });
+        months.push(monthName);
+        
+        // Simular dados (em um sistema real, isso viria do banco de dados)
+        const baseRevenue = 80000 + (Math.random() * 40000);
+        const baseExpense = 45000 + (Math.random() * 20000);
+        
+        revenues.push(baseRevenue);
+        expenses.push(baseExpense);
+      }
+      
+      charts.monthlyEvolution = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [{
+            label: 'Receitas',
+            data: revenues,
+            borderColor: '#4caf50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            tension: 0.4
+          }, {
+            label: 'Despesas',
+            data: expenses,
+            borderColor: '#f44336',
+            backgroundColor: 'rgba(244, 67, 54, 0.1)',
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Evolução Mensal'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return 'R$ ' + value.toLocaleString('pt-BR');
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Gráfico Projeção de Fluxo de Caixa
+    function updateCashFlowProjectionChart() {
+      const ctx = document.getElementById('cashFlowProjectionChart').getContext('2d');
+      
+      if (charts.cashFlowProjection) {
+        charts.cashFlowProjection.destroy();
+      }
+      
+      // Gerar projeção para os próximos 6 meses
+      const months = [];
+      const projections = [];
+      let currentBalance = 50000; // Saldo inicial simulado
+      
+      for (let i = 0; i < 6; i++) {
+        const date = new Date();
+        date.setMonth(date.getMonth() + i);
+        
+        const monthName = date.toLocaleDateString('pt-BR', { month: 'short' });
+        months.push(monthName);
+        
+        // Simular projeção baseada em tendências
+        const projectedRevenue = 85000 + (Math.random() * 30000);
+        const projectedExpenses = 50000 + (Math.random() * 15000);
+        const totalFixedExpenses = financialData.fixedExpenses.reduce((sum, e) => sum + e.value, 0);
+        
+        currentBalance += projectedRevenue - projectedExpenses - totalFixedExpenses;
+        projections.push(currentBalance);
+      }
+      
+      charts.cashFlowProjection = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [{
+            label: 'Projeção de Caixa',
+            data: projections,
+            borderColor: '#ff9800',
+            backgroundColor: 'rgba(255, 152, 0, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Projeção de Fluxo de Caixa'
+            }
+          },
+          scales: {
+            y: {
+              ticks: {
+                callback: function(value) {
+                  return 'R$ ' + value.toLocaleString('pt-BR');
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Exportar relatório PDF
+    function exportFinancialPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      // Cabeçalho
+      doc.setFontSize(20);
+      doc.text('RELATÓRIO FINANCEIRO', 20, 30);
+      doc.setFontSize(12);
+      doc.text('Binex Engenharia', 20, 40);
+      doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 20, 50);
+      
+      let yPosition = 70;
+      
+      // Resumo Dashboard
+      doc.setFontSize(14);
+      doc.text('RESUMO EXECUTIVO', 20, yPosition);
+      yPosition += 15;
+      
+      doc.setFontSize(10);
+      doc.text(`Receitas do Mês: ${document.getElementById('total-revenue').textContent}`, 20, yPosition);
+      doc.text(`Despesas do Mês: ${document.getElementById('total-expenses').textContent}`, 20, yPosition + 10);
+      doc.text(`Saldo Atual: ${document.getElementById('current-balance').textContent}`, 20, yPosition + 20);
+      doc.text(`Projeção Próximo Mês: ${document.getElementById('future-projection').textContent}`, 20, yPosition + 30);
+      yPosition += 50;
+      
+      // Gastos Fixos
+      doc.setFontSize(12);
+      doc.text('GASTOS FIXOS MENSAIS', 20, yPosition);
+      yPosition += 15;
+      
+      doc.setFontSize(8);
+      financialData.fixedExpenses.forEach(expense => {
+        if (yPosition > 270) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(`${expense.name}: R$ ${expense.value.toFixed(2)}`, 25, yPosition);
+        yPosition += 8;
+      });
+      
+      yPosition += 10;
+      
+      // Transações Recentes
+      if (yPosition > 200) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      doc.setFontSize(12);
+      doc.text('TRANSAÇÕES RECENTES', 20, yPosition);
+      yPosition += 15;
+      
+      doc.setFontSize(8);
+      const recentTransactions = financialData.transactions.slice(-10);
+      recentTransactions.forEach(transaction => {
+        if (yPosition > 270) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        const type = transaction.type === 'revenue' ? 'Receita' : 'Despesa';
+        const sign = transaction.type === 'revenue' ? '+' : '-';
+        doc.text(`${new Date(transaction.date).toLocaleDateString('pt-BR')} - ${transaction.description} (${type}): ${sign} R$ ${transaction.value.toFixed(2)}`, 25, yPosition);
+        yPosition += 8;
+      });
+      
+      doc.save(`relatorio-financeiro-${new Date().toISOString().split('T')[0]}.pdf`);
+    }
+
+    // Exportar planilha Excel
+    function exportFinancialExcel() {
+      const wb = XLSX.utils.book_new();
+      
+      // Aba de Transações
+      const transactionsData = financialData.transactions.map(t => ({
+        'Data': new Date(t.date).toLocaleDateString('pt-BR'),
+        'Descrição': t.description,
+        'Tipo': t.type === 'revenue' ? 'Receita' : 'Despesa',
+        'Categoria': t.category,
+        'Valor': t.value
+      }));
+      
+      const wsTransactions = XLSX.utils.json_to_sheet(transactionsData);
+      XLSX.utils.book_append_sheet(wb, wsTransactions, 'Transações');
+      
+      // Aba de Gastos Fixos
+      const fixedExpensesData = financialData.fixedExpenses.map(e => ({
+        'Nome': e.name,
+        'Valor Mensal': e.value
+      }));
+      
+      const wsFixedExpenses = XLSX.utils.json_to_sheet(fixedExpensesData);
+      XLSX.utils.book_append_sheet(wb, wsFixedExpenses, 'Gastos Fixos');
+      
+      // Aba de Resumo
+      const summaryData = [
+        { 'Indicador': 'Receitas do Mês', 'Valor': document.getElementById('total-revenue').textContent },
+        { 'Indicador': 'Despesas do Mês', 'Valor': document.getElementById('total-expenses').textContent },
+        { 'Indicador': 'Saldo Atual', 'Valor': document.getElementById('current-balance').textContent },
+        { 'Indicador': 'Projeção Próximo Mês', 'Valor': document.getElementById('future-projection').textContent }
+      ];
+      
+      const wsSummary = XLSX.utils.json_to_sheet(summaryData);
+      XLSX.utils.book_append_sheet(wb, wsSummary, 'Resumo');
+      
+      XLSX.writeFile(wb, `relatorio-financeiro-${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
+
+    // Gerar resumo automático
+    function generateAutomaticReport() {
+      const totalRevenue = parseFloat(document.getElementById('total-revenue').textContent.replace('R$ ', '').replace(',', ''));
+      const totalExpenses = parseFloat(document.getElementById('total-expenses').textContent.replace('R$ ', '').replace(',', ''));
+      const currentBalance = parseFloat(document.getElementById('current-balance').textContent.replace('R$ ', '').replace(',', ''));
+      
+      let report = `RESUMO FINANCEIRO AUTOMÁTICO\n`;
+      report += `Data: ${new Date().toLocaleDateString('pt-BR')}\n`;
+      report += `${'='.repeat(50)}\n\n`;
+      
+      report += `SITUAÇÃO ATUAL:\n`;
+      if (currentBalance > 0) {
+        report += `✅ A empresa está com saldo positivo de R$ ${currentBalance.toFixed(2)}.\n`;
+      } else {
+        report += `⚠️ A empresa está com saldo negativo de R$ ${Math.abs(currentBalance).toFixed(2)}.\n`;
+      }
+      
+      const margin = ((totalRevenue - totalExpenses) / totalRevenue) * 100;
+      report += `📊 Margem de lucro atual: ${margin.toFixed(1)}%\n\n`;
+      
+      report += `ANÁLISE:\n`;
+      if (margin > 20) {
+        report += `🎯 Excelente margem de lucro. Continue mantendo o controle de custos.\n`;
+      } else if (margin > 10) {
+        report += `📈 Margem de lucro satisfatória. Busque oportunidades de otimização.\n`;
+      } else if (margin > 0) {
+        report += `⚠️ Margem de lucro baixa. Revise custos e estratégias de precificação.\n`;
+      } else {
+        report += `🚨 Empresa operando com prejuízo. Ação imediata necessária.\n`;
+      }
+      
+      report += `\nRECOMENDAÇÕES:\n`;
+      report += `• Monitore regularmente o fluxo de caixa\n`;
+      report += `• Mantenha reserva de emergência de 3-6 meses de gastos fixos\n`;
+      report += `• Revise contratos e fornecedores periodicamente\n`;
+      report += `• Invista em marketing para aumentar receitas\n`;
+      
+      // Criar e baixar arquivo
+      const blob = new Blob([report], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `resumo-automatico-${new Date().toISOString().split('T')[0]}.txt`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    // Configurações de Projeção
+    function getProjectionSettings() {
+      const defaultSettings = {
+        revenueFactor: 90,
+        growthFactor: 5,
+        extraExpensesFactor: 10,
+        emergencyReserve: 15
+      };
+      
+      const savedSettings = localStorage.getItem('projectionSettings');
+      return savedSettings ? JSON.parse(savedSettings) : defaultSettings;
+    }
+    
+    function saveProjectionSettings() {
+      const settings = {
+        revenueFactor: parseFloat(document.getElementById('revenue-factor').value),
+        growthFactor: parseFloat(document.getElementById('growth-factor').value),
+        extraExpensesFactor: parseFloat(document.getElementById('extra-expenses-factor').value),
+        emergencyReserve: parseFloat(document.getElementById('emergency-reserve').value)
+      };
+      
+      localStorage.setItem('projectionSettings', JSON.stringify(settings));
+      updateDashboard();
+      updateProjectionPreview();
+      
+      alert('Configurações de projeção salvas com sucesso!');
+    }
+    
+    function resetProjectionSettings() {
+      if (confirm('Tem certeza que deseja restaurar as configurações padrão?')) {
+        localStorage.removeItem('projectionSettings');
+        loadProjectionSettings();
+        updateDashboard();
+        updateProjectionPreview();
+        
+        alert('Configurações restauradas para os valores padrão!');
+      }
+    }
+    
+    function loadProjectionSettings() {
+      const settings = getProjectionSettings();
+      document.getElementById('revenue-factor').value = settings.revenueFactor;
+      document.getElementById('growth-factor').value = settings.growthFactor;
+      document.getElementById('extra-expenses-factor').value = settings.extraExpensesFactor;
+      document.getElementById('emergency-reserve').value = settings.emergencyReserve;
+    }
+    
+    function toggleProjectionSettings() {
+      const content = document.getElementById('projection-config-content');
+      const icon = document.getElementById('toggle-icon');
+      
+      if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.textContent = '▲';
+        updateProjectionPreview();
+      } else {
+        content.style.display = 'none';
+        icon.textContent = '▼';
+      }
+    }
+    
+    function updateProjectionPreview() {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      
+      const currentMonthTransactions = financialData.transactions.filter(t => {
+        const transactionDate = new Date(t.date);
+        return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear;
+      });
+      
+      const totalRevenue = currentMonthTransactions
+        .filter(t => t.type === 'revenue')
+        .reduce((sum, t) => sum + t.value, 0);
+      
+      const totalFixedExpenses = financialData.fixedExpenses.reduce((sum, e) => sum + e.value, 0);
+      
+      const settings = {
+        revenueFactor: parseFloat(document.getElementById('revenue-factor').value) || 90,
+        growthFactor: parseFloat(document.getElementById('growth-factor').value) || 5,
+        extraExpensesFactor: parseFloat(document.getElementById('extra-expenses-factor').value) || 10,
+        emergencyReserve: parseFloat(document.getElementById('emergency-reserve').value) || 15
+      };
+      
+      const projectedRevenue = totalRevenue * (settings.revenueFactor / 100) * (1 + settings.growthFactor / 100);
+      const extraExpenses = projectedRevenue * (settings.extraExpensesFactor / 100);
+      const emergencyReserve = projectedRevenue * (settings.emergencyReserve / 100);
+      const finalProjection = projectedRevenue - totalFixedExpenses - extraExpenses - emergencyReserve;
+      
+      document.getElementById('preview-base-revenue').textContent = formatBRL(totalRevenue);
+      document.getElementById('preview-projected-revenue').textContent = formatBRL(projectedRevenue);
+      document.getElementById('preview-fixed-expenses').textContent = formatBRL(totalFixedExpenses);
+      document.getElementById('preview-extra-expenses').textContent = formatBRL(extraExpenses);
+      document.getElementById('preview-emergency').textContent = formatBRL(emergencyReserve);
+      document.getElementById('preview-final-projection').textContent = formatBRL(finalProjection);
+      
+      // Atualizar cor da projeção final
+      const finalElement = document.getElementById('preview-final-projection');
+      finalElement.style.color = finalProjection >= 0 ? 'var(--success-color)' : '#f44336';
+    }
+    
+    // Event listeners para atualização em tempo real
+    function setupProjectionEventListeners() {
+      const inputs = ['revenue-factor', 'growth-factor', 'extra-expenses-factor', 'emergency-reserve'];
+      inputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.addEventListener('input', updateProjectionPreview);
+        }
+      });
+    }
+
+    // Inicializar aplicação
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
+      
+      loadFinancialData();
+      loadProjectionSettings();
+      setupProjectionEventListeners();
+      renderTransactions();
+      renderFixedExpenses();
+      updateDashboard();
+      
+      // Aguardar um pouco antes de criar os gráficos para garantir que os elementos estejam prontos
+      setTimeout(() => {
+        updateCharts();
+      }, 100);
+    });
+
+    function formatBRL(value) {
+      return 'R$ ' + Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
   </script>
 </body>
 </html>
+
