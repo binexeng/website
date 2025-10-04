@@ -125,7 +125,7 @@
     });
   </script>
   <script>
-    // Esconde todos os links/botões do Financeiro para quem não for Jean ou Luis
+  document.addEventListener('DOMContentLoaded', function() {
     function getCookie(name) {
       const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
       return m ? decodeURIComponent(m[1]) : null;
@@ -137,9 +137,15 @@
     const emailCookie = getCookie('fb_email');
     function hideFinanceiroElements(email) {
       if (!allowedEmails.includes(email)) {
-        // Esconde todos os elementos que levam ao financeiro
-        document.querySelectorAll('a[href="financeiro_novo.html"], button[data-financeiro], #financeiro-link, #financeiro-card, #financeiro-footer').forEach(el => {
-          el.style.display = "none";
+        // Esconde o link do menu
+        document.querySelectorAll('a[href="financeiro_novo.html"]').forEach(el => el.style.display = "none");
+        // Esconde o card do módulo financeiro
+        document.querySelectorAll('.service-card, .dashboard-card').forEach(card => {
+          if (card.textContent.includes('Financeiro')) card.style.display = "none";
+        });
+        // Esconde links rápidos no rodapé
+        document.querySelectorAll('footer a, .footer a').forEach(link => {
+          if (link.textContent.includes('Financeiro')) link.style.display = "none";
         });
       }
     }
@@ -150,6 +156,7 @@
         if (user && user.email) hideFinanceiroElements(user.email);
       });
     }
-  </script>
+  });
+</script>
 </body>
 </html>
