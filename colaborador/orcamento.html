@@ -96,6 +96,33 @@
       document.getElementById('resultText').innerHTML = `Área: <strong>${area} m²</strong><br>Nº de pavimentos: <strong>${floors}</strong><br>Padrão: <strong>${quality.charAt(0).toUpperCase() + quality.slice(1)}</strong><br>Custo estimado: <strong>R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>`;
       document.getElementById('result').style.display = 'block';
     });
+    // Esconde os links do Financeiro para quem não for Jean ou Luis
+    function getCookie(name) {
+      const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+    const allowedEmails = [
+      "jeanpoposki@gmail.com",
+      "luisgsengenharia@gmail.com"
+    ];
+    const emailCookie = getCookie('fb_email');
+    function hideFinanceiroLinks(email) {
+      if (!allowedEmails.includes(email)) {
+        // Menu
+        const menuLink = document.querySelector('a[href="financeiro_novo.html"]');
+        if (menuLink) menuLink.parentElement.style.display = "none";
+        // Rodapé
+        const footerLinks = document.querySelectorAll('footer a[href="financeiro.html"], footer a[href="financeiro_novo.html"]');
+        footerLinks.forEach(link => link.style.display = "none");
+      }
+    }
+    if (emailCookie) hideFinanceiroLinks(emailCookie);
+    // Se está usando Firebase, espera autenticação
+    if (window.firebase && firebase.auth) {
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user && user.email) hideFinanceiroLinks(user.email);
+      });
+    }
   </script>
 </body>
 </html>

@@ -62,7 +62,7 @@
         <li><a href="index.html" class="active">Início</a></li>
         <li><a href="orcamento.html">Orçamento Simples</a></li>
         <li><a href="orcamento_detalhado_novo.html">Orçamento Detalhado</a></li>
-        <li><a href="financeiro_novo.html">Financeiro</a></li>
+        <li id="financeiro-menu"><a href="financeiro_novo.html">Financeiro</a></li>
         <li><a href="checklists.html">Checklists</a></li>
         <li><a href="javascript:void(0);" id="logoutLink">Sair</a></li>
       </ul>
@@ -85,7 +85,7 @@
             <p>Sistema completo de orçamentação por setores com controle de materiais, mão de obra e exportação em PDF.</p>
           </div>
         </a>
-        <a href="financeiro_novo.html">
+        <a href="financeiro_novo.html" id="financeiro-card">
           <div class="service-card">
             <h3>Módulo Financeiro</h3>
             <p>Dashboard completo com gráficos, controle de entradas e saídas, gastos fixos e projeções financeiras.</p>
@@ -123,6 +123,29 @@
     document.getElementById('logoutLink').addEventListener('click', function() {
       window.logout('../index.html');
     });
+  </script>
+  <script>
+    // Proteção do link do financeiro
+    function getCookie(name) {
+      const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+    const allowedEmails = [
+      "jeanpoposki@gmail.com",
+      "luisgsengenharia@gmail.com"
+    ];
+    const email = getCookie('fb_email');
+    if (!allowedEmails.includes(email)) {
+      // Esconde o menu
+      const financeiroMenu = document.getElementById('financeiro-menu');
+      if (financeiroMenu) financeiroMenu.style.display = 'none';
+      // Esconde o card
+      const financeiroCard = document.getElementById('financeiro-card');
+      if (financeiroCard) financeiroCard.style.display = 'none';
+      // Esconde o rodapé
+      const financeiroFooter = document.getElementById('financeiro-footer');
+      if (financeiroFooter) financeiroFooter.style.display = 'none';
+    }
   </script>
 </body>
 </html>

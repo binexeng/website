@@ -208,5 +208,36 @@
       });
     }
   </script>
+
+  <script>
+  // Esconde o link do Financeiro para quem não for Jean ou Luis
+  function getCookie(name) {
+    const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  const allowedEmails = [
+    "jeanpoposki@gmail.com",
+    "luisgsengenharia@gmail.com"
+  ];
+  // Tenta pegar do cookie (caso login via cookie)
+  const emailCookie = getCookie('fb_email');
+  // Tenta pegar do Firebase (caso login via Firebase)
+  function hideFinanceiroLink(email) {
+    if (!allowedEmails.includes(email)) {
+      const financeiroLink = document.querySelector('a[href="financeiro_novo.html"]');
+      if (financeiroLink) {
+        financeiroLink.parentElement.style.display = "none";
+      }
+    }
+  }
+  // Se já tem cookie, esconde
+  if (emailCookie) hideFinanceiroLink(emailCookie);
+  // Se está usando Firebase, espera autenticação
+  if (window.firebase && firebase.auth) {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user && user.email) hideFinanceiroLink(user.email);
+    });
+  }
+  </script>
 </body>
 </html>

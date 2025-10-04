@@ -581,7 +581,28 @@
 <body>
   <!-- Proteção via Firebase cookie -->
   <script>
-    window.requireLogin('../login.html');
+    // Protege a página do financeiro
+    function getCookie(name) {
+      const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+    const allowedEmails = [
+      "jeanpoposki@gmail.com",
+      "luisgsengenharia@gmail.com"
+    ];
+    const emailCookie = getCookie('fb_email');
+    function blockFinanceiro(email) {
+      if (!allowedEmails.includes(email)) {
+        document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>Acesso restrito.<br>Esta página é exclusiva para administradores.</h2>";
+      }
+    }
+    if (emailCookie) blockFinanceiro(emailCookie);
+    // Se está usando Firebase, espera autenticação
+    if (window.firebase && firebase.auth) {
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user && user.email) blockFinanceiro(user.email);
+      });
+    }
   </script>
   
   <nav>
